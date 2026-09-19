@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>DROPFX Pips Calculator</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0b0b0f;
+    color: white;
+    padding: 20px;
+}
+
+.container {
+    max-width: 500px;
+    margin: auto;
+}
+
+.logo {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #888;
+    margin-bottom: 25px;
+}
+
+.card {
+    background: #15151c;
+    border: 1px solid #292933;
+    border-radius: 18px;
+    padding: 20px;
+}
+
+label {
+    display: block;
+    color: #aaa;
+    font-size: 13px;
+    margin-bottom: 7px;
+}
+
+input, select {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 16px;
+    background: #0e0e13;
+    border: 1px solid #33333e;
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: white;
+    color: black;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.results {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.result {
+    background: #0e0e13;
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.result-title {
+    color: #888;
+    font-size: 12px;
+}
+
+.result-value {
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.note {
+    color: #666;
+    font-size: 11px;
+    margin-top: 20px;
+    line-height: 1.5;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="logo">DROPFX</div>
+    <div class="subtitle">PIPS CALCULATOR</div>
+
+    <div class="card">
+
+        <label>PAIR</label>
+
+        <select id="pair">
+            <option value="gold">XAUUSD</option>
+            <option value="forex">FOREX</option>
+            <option value="jpy">JPY PAIR</option>
+        </select>
+
+        <label>DIRECTION</label>
+
+        <select id="direction">
+            <option value="buy">BUY</option>
+            <option value="sell">SELL</option>
+        </select>
+
+        <label>ENTRY PRICE</label>
+        <input id="entry" type="number" step="any" placeholder="Example: 3650.00">
+
+        <label>STOP LOSS</label>
+        <input id="sl" type="number" step="any" placeholder="Example: 3645.00">
+
+        <label>TAKE PROFIT</label>
+        <input id="tp" type="number" step="any" placeholder="Example: 3660.00">
+
+        <label>LOT SIZE</label>
+        <input id="lot" type="number" step="0.01" placeholder="Example: 0.10">
+
+        <button onclick="calculate()">
+            CALCULATE
+        </button>
+
+        <div class="results">
+
+            <div class="result">
+                <div class="result-title">SL PIPS</div>
+                <div class="result-value" id="slPips">—</div>
+            </div>
+
+            <div class="result">
+                <div class="result-title">TP PIPS</div>
+                <div class="result-value" id="tpPips">—</div>
+            </div>
+
+            <div class="result">
+                <div class="result-title">RISK : REWARD</div>
+                <div class="result-value" id="rr">—</div>
+            </div>
+
+            <div class="result">
+                <div class="result-title">POTENTIAL</div>
+                <div class="result-value" id="potential">—</div>
+            </div>
+
+        </div>
+
+        <div class="note">
+            DROPFX calculator. Pips are calculated from price movement.
+            Actual monetary P/L depends on your broker's contract specifications,
+            account currency and lot size.
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function calculate() {
+
+    const pair = document.getElementById("pair").value;
+    const direction = document.getElementById("direction").value;
+
+    const entry = parseFloat(document.getElementById("entry").value);
+    const sl = parseFloat(document.getElementById("sl").value);
+    const tp = parseFloat(document.getElementById("tp").value);
+
+    if (!entry || !sl || !tp) {
+        alert("Please enter Entry, Stop Loss and Take Profit.");
+        return;
+    }
+
+    let pipSize;
+
+    if (pair === "gold") {
+        pipSize = 0.10;
+    } 
+    else if (pair === "jpy") {
+        pipSize = 0.01;
+    } 
+    else {
+        pipSize = 0.0001;
+    }
+
+    let slDistance;
+    let tpDistance;
+
+    if (direction === "buy") {
+
+        slDistance = entry - sl;
+        tpDistance = tp - entry;
+
+    } else {
+
+        slDistance = sl - entry;
+        tpDistance = entry - tp;
+
+    }
+
+    if (slDistance <= 0 || tpDistance <= 0) {
+        alert("Check your BUY/SELL direction and prices.");
+        return;
+    }
+
+    const slPips = slDistance / pipSize;
+    const tpPips = tpDistance / pipSize;
+
+    const rr = tpPips / slPips;
+
+    document.getElementById("slPips").innerText =
+        slPips.toFixed(1);
+
+    document.getElementById("tpPips").innerText =
+        tpPips.toFixed(1);
+
+    document.getElementById("rr").innerText =
+        "1 : " + rr.toFixed(2);
+
+    document.getElementById("potential").innerText =
+        tpPips.toFixed(1) + " PIPS";
+}
+
+</script>
+
+</body>
+</html>
